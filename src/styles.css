@@ -126,6 +126,21 @@ button {
   font-size: 11px;
 }
 
+.agenda-logout {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 0;
+  color: #a9c4bc;
+  background: transparent;
+  font-size: 11px;
+}
+
+.agenda-logout:hover {
+  color: #fff;
+}
+
 /* ---------- 4. Cabeçalho ---------- */
 .agenda-topbar {
   display: flex;
@@ -166,6 +181,156 @@ button {
 
 .primary:hover {
   background: #20665d;
+}
+
+.full {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ---------- 5. Login e cadastro ---------- */
+.login-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  background: #edf5f1;
+}
+
+.login-card {
+  width: min(430px, 100%);
+  padding: 38px 35px;
+  border: 1px solid #dfeae5;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 14px 45px rgb(24 59 63 / 8%);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 38px;
+  color: #173d3d;
+  font-family: Manrope, Arial, sans-serif;
+  font-weight: 800;
+}
+
+.login-brand strong,
+.login-brand small {
+  display: block;
+}
+
+.login-brand strong {
+  font-size: 18px;
+}
+
+.login-brand small {
+  margin-top: 2px;
+  color: #7fa69e;
+  font: 500 10px "DM Sans", Arial, sans-serif;
+}
+
+.login-card h1 {
+  margin: 0;
+  font: 800 27px Manrope, Arial, sans-serif;
+}
+
+.login-card .muted {
+  margin: 8px 0 25px;
+}
+
+.login-card form {
+  display: grid;
+  gap: 14px;
+}
+
+.login-card label,
+.modal label {
+  display: grid;
+  gap: 6px;
+  color: #55706b;
+  font-size: 11px;
+}
+
+.login-card input,
+.modal input {
+  padding: 11px;
+  border: 1px solid #d9e4df;
+  border-radius: 6px;
+  outline: 0;
+  color: #315b58;
+  background: #fff;
+}
+
+.login-card input:focus,
+.modal input:focus {
+  border-color: #5c9f91;
+  box-shadow: 0 0 0 3px rgb(92 159 145 / 10%);
+}
+
+.login-message {
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: 6px;
+  color: #317662;
+  background: #e8f6ef;
+  font-size: 11px;
+}
+
+.login-link {
+  padding: 4px;
+  color: #357a6e;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- 6. Formulário de professor ---------- */
+.modal-backdrop {
+  position: fixed;
+  z-index: 5;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgb(20 59 60 / 40%);
+}
+
+.modal {
+  width: min(465px, 100%);
+  padding: 23px;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 15px 40px rgb(16 46 45 / 20%);
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-head h2 {
+  margin: 0;
+  font: 700 18px Manrope, Arial, sans-serif;
+}
+
+.modal-head button {
+  padding: 4px;
+  color: #79918b;
+  background: transparent;
+}
+
+.modal form {
+  display: grid;
+  gap: 13px;
 }
 
 /* ---------- 5. Conteúdo da agenda ---------- */
@@ -273,7 +438,7 @@ button {
   font-size: 10px;
 }
 
-/* ---------- 6. Cartão de uma aula ---------- */
+/* ---------- 7. Cartão de uma aula ---------- */
 .agenda-list {
   display: grid;
   gap: 12px;
@@ -372,7 +537,7 @@ button {
   font-weight: 500;
 }
 
-/* ---------- 7. Ajustes para celular ---------- */
+/* ---------- 8. Ajustes para celular ---------- */
 @media (max-width: 760px) {
   .agenda-sidebar {
     display: none;

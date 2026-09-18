@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BookOpen, CalendarDays, ChevronLeft, ChevronRight, Clock3, GraduationCap, Plus, Target } from 'lucide-react'
+import { BookOpen, CalendarDays, ChevronLeft, ChevronRight, Clock3, GraduationCap, LogOut, Plus, Target, UserPlus, X } from 'lucide-react'
 import './styles.css'
 
 const lessons = [
@@ -43,6 +43,38 @@ const lessons = [
 ]
 
 function App() {
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('pei-user') || 'null'))
+  const [teachers, setTeachers] = useState(() => JSON.parse(localStorage.getItem('pei-teachers') || '[]'))
+  const [showTeacherForm, setShowTeacherForm] = useState(false)
+
+  if (!user) {
+    return <Login onLogin={account => {
+      const loggedUser = { name: account.name, email: account.email }
+      localStorage.setItem('pei-user', JSON.stringify(loggedUser))
+      setUser(loggedUser)
+    }} />
+  }
+
+  const addTeacher = (event) => {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
+    const teacher = {
+      id: Date.now(),
+      name: form.get('name'),
+      subject: form.get('subject'),
+      email: form.get('email')
+    }
+    const nextTeachers = [...teachers, teacher]
+    localStorage.setItem('pei-teachers', JSON.stringify(nextTeachers))
+    setTeachers(nextTeachers)
+    setShowTeacherForm(false)
+  }
+
+  const logout = () => {
+    localStorage.removeItem('pei-user')
+    setUser(null)
+  }
+
   // Guarda a data que está sendo exibida na agenda.
   const [selectedDate, setSelectedDate] = useState(new Date(2026, 8, 18))
 
@@ -72,7 +104,11 @@ function App() {
         <button className="agenda-nav active"><CalendarDays size={18} />Agenda de aulas</button>
         <button className="agenda-nav"><BookOpen size={18} />Conteúdos</button>
         <button className="agenda-nav"><Target size={18} />Habilidades da BNCC</button>
-        <div className="agenda-sidebar-footer">Primeiro protótipo<br /><strong>Unidade Centro</strong></div>
+        <button className="agenda-nav" onClick={() => setShowTeacherForm(true)}><UserPlus size={18} />Cadastrar professor</button>
+        <div className="agenda-sidebar-footer">
+          <strong>{user.name}</strong><br />{user.email}
+          <button className="agenda-logout" onClick={logout}><LogOut size={14} />Sair</button>
+        </div>
       </aside>
 
       <main className="agenda-main">
@@ -112,8 +148,90 @@ function App() {
           </div>
         </section>
       </main>
+      {showTeacherForm && <TeacherForm onClose={() => setShowTeacherForm(false)} onSubmit={addTeacher} />}
     </div>
   )
+}
+
+function Login({ onLogin }) {
+  const [mode, setMode] = useState('login')
+  const [accounts, setAccounts] = useState(() => JSON.parse(localStorage.getItem('pei-accounts') || '[]'))
+  const [error, setError] = useState('')
+
+  const submit = (event) => {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
+    const email = String(form.get('email')).trim().toLowerCase()
+    const password = String(form.get('password'))
+    const account = accounts.find(item => item.email === email && item.password === password)
+    if (!account) {
+      setError('E-mail ou senha incorretos.')
+      return
+    }
+    onLogin(account)
+  }
+
+  const register = (event) => {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
+    const name = String(form.get('name')).trim()
+    const email = String(form.get('email')).trim().toLowerCase()
+    const password = String(form.get('password'))
+    const confirmation = String(form.get('confirmation'))
+    if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password) || password.length < 8) {
+      setError('A senha precisa ter pelo menos 8 caracteres, com letras e números.')
+      return
+    }
+    if (password !== confirmation) {
+      setError('A confirmação da senha não confere.')
+      return
+    }
+    if (accounts.some(account => account.email === email)) {
+      setError('Este e-mail já está cadastrado.')
+      return
+    }
+    const nextAccounts = [...accounts, { name, email, password }]
+    localStorage.setItem('pei-accounts', JSON.stringify(nextAccounts))
+    setAccounts(nextAccounts)
+    setMode('login')
+    setError('Cadastro realizado. Agora entre com seu e-mail e senha.')
+  }
+
+  return <main className="login-page">
+    <section className="login-card">
+      <div className="login-brand"><span className="brand-mark"><GraduationCap size={22} /></span><span><strong>PEI Agenda</strong><small>Planejamento escolar</small></span></div>
+      <p className="agenda-kicker">{mode === 'login' ? 'ÁREA RESTRITA' : 'NOVO PROFESSOR'}</p>
+      <h1>{mode === 'login' ? 'Entrar no sistema' : 'Criar cadastro'}</h1>
+      <p className="muted">{mode === 'login' ? 'Acesse sua agenda de aulas.' : 'Crie seu acesso para registrar seus planejamentos.'}</p>
+      {mode === 'login' ? <form onSubmit={submit}>
+        <label>E-mail<input name="email" type="email" required placeholder="professor@pei.edu.br" /></label>
+        <label>Senha<input name="password" type="password" required placeholder="Sua senha" /></label>
+        {error && <p className="login-message">{error}</p>}
+        <button className="primary full">Entrar</button>
+        <button className="login-link" type="button" onClick={() => { setMode('register'); setError('') }}>Ainda não tenho cadastro</button>
+      </form> : <form onSubmit={register}>
+        <label>Nome completo<input name="name" required placeholder="Nome do professor" /></label>
+        <label>E-mail<input name="email" type="email" required placeholder="professor@pei.edu.br" /></label>
+        <label>Senha<input name="password" type="password" required placeholder="Letras e números, mínimo 8 caracteres" /></label>
+        <label>Confirmar senha<input name="confirmation" type="password" required placeholder="Repita a senha" /></label>
+        {error && <p className="login-message">{error}</p>}
+        <button className="primary full">Criar cadastro</button>
+        <button className="login-link" type="button" onClick={() => { setMode('login'); setError('') }}>Voltar para o login</button>
+      </form>}
+    </section>
+  </main>
+}
+
+function TeacherForm({ onClose, onSubmit }) {
+  return <div className="modal-backdrop" onMouseDown={onClose}><section className="modal" onMouseDown={event => event.stopPropagation()}>
+    <div className="modal-head"><h2>Cadastrar professor</h2><button onClick={onClose} aria-label="Fechar"><X size={18} /></button></div>
+    <form onSubmit={onSubmit}>
+      <label>Nome completo<input name="name" required placeholder="Nome do professor" /></label>
+      <label>Disciplina<input name="subject" required placeholder="Ex.: Matemática" /></label>
+      <label>E-mail institucional<input name="email" type="email" required placeholder="professor@pei.edu.br" /></label>
+      <button className="primary full">Salvar professor</button>
+    </form>
+  </section></div>
 }
 
 function LessonCard({ lesson }) {
