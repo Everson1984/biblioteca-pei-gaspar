@@ -1,14 +1,30 @@
 <!doctype html>
 <html lang="pt-BR">
   <head>
+    <!-- Permite que o navegador mostre corretamente acentos e cedilha. -->
     <meta charset="UTF-8" />
+
+    <!-- Faz a página se adaptar a celulares e computadores. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0b1f3a" />
-    <meta name="description" content="PEI Dr Gaspar Ricardo Junior — gestão de acervo, alunos e empréstimos." />
-    <title>PEI Dr Gaspar Ricardo Junior</title>
+
+    <!-- Texto que aparece na aba do navegador. -->
+    <title>PEI Agenda de Aulas</title>
+
+    <!-- Pequena descrição usada por buscadores e compartilhamentos. -->
+    <meta
+      name="description"
+      content="Agenda de conteúdos, horários e habilidades da BNCC da PEI."
+    />
   </head>
+
   <body>
+    <!--
+      O React encontra este elemento pelo id "root" e coloca
+      aqui toda a interface que está em src/main.jsx.
+    -->
     <div id="root"></div>
+
+    <!-- Arquivo principal do aplicativo. -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
