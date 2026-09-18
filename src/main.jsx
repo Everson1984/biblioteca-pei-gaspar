@@ -181,6 +181,7 @@ function Login({ onLogin }) {
   const [mode, setMode] = useState('login')
   const [accounts, setAccounts] = useState(() => JSON.parse(localStorage.getItem('pei-accounts') || '[]'))
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
 
   const submit = (event) => {
     event.preventDefault()
@@ -218,29 +219,64 @@ function Login({ onLogin }) {
     localStorage.setItem('pei-accounts', JSON.stringify(nextAccounts))
     setAccounts(nextAccounts)
     setMode('login')
+    setNotice('')
     setError('Cadastro realizado. Agora entre com seu e-mail e senha.')
+  }
+
+  const recoverPassword = (event) => {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
+    const email = String(form.get('email')).trim().toLowerCase()
+    const password = String(form.get('password'))
+    const confirmation = String(form.get('confirmation'))
+    const accountIndex = accounts.findIndex(account => account.email === email)
+
+    if (accountIndex === -1) {
+      setError('Não encontramos uma conta com este e-mail.')
+      setNotice('')
+      return
+    }
+    if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password) || password.length < 8) {
+      setError('A senha precisa ter pelo menos 8 caracteres, com letras e números.')
+      setNotice('')
+      return
+    }
+    if (password !== confirmation) {
+      setError('A confirmação da senha não confere.')
+      setNotice('')
+      return
+    }
+
+    const nextAccounts = accounts.map((account, index) => index === accountIndex ? { ...account, password } : account)
+    localStorage.setItem('pei-accounts', JSON.stringify(nextAccounts))
+    setAccounts(nextAccounts)
+    setMode('login')
+    setError('')
+    setNotice('Senha alterada com sucesso. Entre com a nova senha.')
+  }
+
+  const changeMode = nextMode => {
+    setMode(nextMode)
+    setError('')
+    setNotice('')
   }
 
   return <main className="login-page">
     <section className="login-card">
       <div className="login-brand"><span className="brand-mark"><GraduationCap size={22} /></span><span><strong>PEI Agenda</strong><small>Planejamento escolar</small></span></div>
-      <p className="agenda-kicker">{mode === 'login' ? 'ÁREA RESTRITA' : 'NOVO PROFESSOR'}</p>
-      <h1>{mode === 'login' ? 'Entrar no sistema' : 'Criar cadastro'}</h1>
-      <p className="muted">{mode === 'login' ? 'Acesse sua agenda de aulas.' : 'Crie seu acesso para registrar seus planejamentos.'}</p>
+      <p className="agenda-kicker">{mode === 'login' ? 'ÁREA RESTRITA' : mode === 'register' ? 'NOVO PROFESSOR' : 'RECUPERAÇÃO DE ACESSO'}</p>
+      <h1>{mode === 'login' ? 'Entrar no sistema' : mode === 'register' ? 'Criar cadastro' : 'Recuperar senha'}</h1>
+      <p className="muted">{mode === 'login' ? 'Acesse sua agenda de aulas.' : mode === 'register' ? 'Crie seu acesso para registrar seus planejamentos.' : 'Cadastre uma nova senha para voltar a acessar sua conta.'}</p>
       {mode === 'login' ? <form onSubmit={submit}>
         <label>E-mail<input name="email" type="email" required placeholder="professor@pei.edu.br" /></label>
         <label>Senha<input name="password" type="password" required placeholder="Sua senha" /></label>
         {error && <p className="login-message">{error}</p>}
+        {notice && <p className="login-message success">{notice}</p>}
         <button className="primary full">Entrar</button>
-        <button className="login-link" type="button" onClick={() => { setMode('register'); setError('') }}>Ainda não tenho cadastro</button>
-      </form> : <form onSubmit={register}>
-        <label>Nome completo<input name="name" required placeholder="Nome do professor" /></label>
-        <label>E-mail<input name="email" type="email" required placeholder="professor@pei.edu.br" /></label>
-        <label>Senha<input name="password" type="password" required placeholder="Letras e números, mínimo 8 caracteres" /></label>
-        <label>Confirmar senha<input name="confirmation" type="password" required placeholder="Repita a senha" /></label>
-        {error && <p className="login-message">{error}</p>}
-        <button className="primary full">Criar cadastro</button>
-        <button className="login-link" type="button" onClick={() => { setMode('login'); setError('') }}>Voltar para o login</button>
+        <div className="login-links"><button className="login-link" type="button" onClick={() => changeMode('register')}>Ainda não tenho cadastro</button><button className="login-link" type="button" onClick={() => changeMode('recover')}>Esqueci minha senha</button></div>
+      </form> : <form onSubmit={mode === 'register' ? register : recoverPassword}>
+        {mode === 'register' ? <><label>Nome completo<input name="name" required placeholder="Nome do professor" /></label><label>E-mail<input name="email" type="email" required placeholder="professor@pei.edu.br" /></label><label>Senha<input name="password" type="password" required placeholder="Letras e números, mínimo 8 caracteres" /></label><label>Confirmar senha<input name="confirmation" type="password" required placeholder="Repita a senha" /></label><button className="primary full">Criar cadastro</button><button className="login-link" type="button" onClick={() => changeMode('login')}>Voltar para o login</button></> : <><label>E-mail cadastrado<input name="email" type="email" required placeholder="professor@pei.edu.br" /></label><label>Nova senha<input name="password" type="password" required placeholder="Letras e números, mínimo 8 caracteres" /></label><label>Confirmar nova senha<input name="confirmation" type="password" required placeholder="Repita a nova senha" /></label><button className="primary full" type="submit">Alterar senha</button><button className="login-link" type="button" onClick={() => changeMode('login')}>Voltar para o login</button></>}
+        {error && <p className="login-message error">{error}</p>}
       </form>}
     </section>
   </main>

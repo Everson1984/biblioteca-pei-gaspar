@@ -310,6 +310,22 @@ button {
   font-size: 11px;
 }
 
+.login-message.error {
+  color: #a94f46;
+  background: #fff0ed;
+}
+
+.login-message.success {
+  color: #317662;
+  background: #e8f6ef;
+}
+
+.login-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .login-link {
   padding: 4px;
   color: #357a6e;
