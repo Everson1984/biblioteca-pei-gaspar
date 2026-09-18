@@ -46,6 +46,8 @@ function App() {
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('pei-user') || 'null'))
   const [teachers, setTeachers] = useState(() => JSON.parse(localStorage.getItem('pei-teachers') || '[]'))
   const [showTeacherForm, setShowTeacherForm] = useState(false)
+  const [savedLessons, setSavedLessons] = useState(() => JSON.parse(localStorage.getItem('pei-lessons') || '[]'))
+  const [showLessonForm, setShowLessonForm] = useState(false)
 
   if (!user) {
     return <Login onLogin={account => {
@@ -63,6 +65,27 @@ function App() {
       name: form.get('name'),
       subject: form.get('subject'),
       email: form.get('email')
+    }
+
+    const addLesson = (event) => {
+      event.preventDefault()
+      const form = new FormData(event.currentTarget)
+      const newLesson = {
+        id: Date.now(),
+        date: form.get('date'),
+        time: `${form.get('startTime')} – ${form.get('endTime')}`,
+        className: form.get('className'),
+        subject: form.get('subject'),
+        skill: form.get('skill'),
+        theme: form.get('theme'),
+        objective: form.get('objective'),
+        activities: form.get('activities'),
+        color: 'teal'
+      }
+      const nextLessons = [...savedLessons, newLesson]
+      localStorage.setItem('pei-lessons', JSON.stringify(nextLessons))
+      setSavedLessons(nextLessons)
+      setShowLessonForm(false)
     }
     const nextTeachers = [...teachers, teacher]
     localStorage.setItem('pei-teachers', JSON.stringify(nextTeachers))
@@ -114,7 +137,7 @@ function App() {
       <main className="agenda-main">
         <header className="agenda-topbar">
           <div><span className="agenda-kicker">PLANEJAMENTO PEDAGÓGICO</span><h1>Agenda de aulas</h1></div>
-          <button className="primary" onClick={() => window.alert('O formulário de nova aula será criado no próximo passo.')}>
+          <button className="primary" onClick={() => setShowLessonForm(true)}>
             <Plus size={17} />Nova aula
           </button>
         </header>
@@ -134,21 +157,22 @@ function App() {
 
           <div className="agenda-notice">
             <CalendarDays size={19} />
-            <span>Esta é uma visualização de exemplo. Em breve você poderá cadastrar suas próprias aulas.</span>
+            <span>{savedLessons.length ? 'Suas aulas foram salvas neste navegador.' : 'Cadastre sua primeira aula para começar seu planejamento.'}</span>
           </div>
 
           <div className="agenda-summary">
-            <div><Clock3 size={19} /><span><strong>4 aulas</strong><small>planejadas hoje</small></span></div>
-            <div><BookOpen size={19} /><span><strong>4 componentes</strong><small>curriculares</small></span></div>
-            <div><Target size={19} /><span><strong>4 habilidades</strong><small>da BNCC trabalhadas</small></span></div>
+            <div><Clock3 size={19} /><span><strong>{lessons.length + savedLessons.length} aulas</strong><small>no planejamento</small></span></div>
+            <div><BookOpen size={19} /><span><strong>{new Set([...lessons, ...savedLessons].map(lesson => lesson.subject)).size} componentes</strong><small>curriculares</small></span></div>
+            <div><Target size={19} /><span><strong>{new Set([...lessons, ...savedLessons].map(lesson => lesson.skill)).size} habilidades</strong><small>da BNCC trabalhadas</small></span></div>
           </div>
 
           <div className="agenda-list">
-            {lessons.map(lesson => <LessonCard key={lesson.time} lesson={lesson} />)}
+            {[...lessons, ...savedLessons].map(lesson => <LessonCard key={lesson.id || lesson.time} lesson={lesson} />)}
           </div>
         </section>
       </main>
       {showTeacherForm && <TeacherForm onClose={() => setShowTeacherForm(false)} onSubmit={addTeacher} />}
+      {showLessonForm && <LessonForm onClose={() => setShowLessonForm(false)} onSubmit={addLesson} selectedDate={selectedDate} />}
     </div>
   )
 }
@@ -234,6 +258,24 @@ function TeacherForm({ onClose, onSubmit }) {
   </section></div>
 }
 
+function LessonForm({ onClose, onSubmit, selectedDate }) {
+  const dateValue = selectedDate.toISOString().slice(0, 10)
+  return <div className="modal-backdrop" onMouseDown={onClose}><section className="modal lesson-form" onMouseDown={event => event.stopPropagation()}>
+    <div className="modal-head"><h2>Nova aula</h2><button onClick={onClose} aria-label="Fechar"><X size={18} /></button></div>
+    <p className="form-help">Registre o que será planejado e aplicado em sala.</p>
+    <form onSubmit={onSubmit}>
+      <div className="form-row"><label>Data<input name="date" type="date" defaultValue={dateValue} required /></label><label>Turma<input name="className" required placeholder="Ex.: 8º A" /></label></div>
+      <div className="form-row"><label>Início<input name="startTime" type="time" required /></label><label>Fim<input name="endTime" type="time" required /></label></div>
+      <label>Componente curricular<input name="subject" required placeholder="Ex.: Matemática" /></label>
+      <label>Habilidade da BNCC<input name="skill" required placeholder="Ex.: EF08MA04" /></label>
+      <label>Tema da aula<input name="theme" required placeholder="Ex.: Porcentagem" /></label>
+      <label>Objetivo da aula<textarea name="objective" required placeholder="O que os alunos deverão aprender?" /></label>
+      <label>Atividades aplicadas<textarea name="activities" required placeholder="Descreva as atividades realizadas..." /></label>
+      <button className="primary full">Salvar aula</button>
+    </form>
+  </section></div>
+}
+
 function LessonCard({ lesson }) {
   return (
     <article className={`lesson-card ${lesson.color}`}>
@@ -244,6 +286,7 @@ function LessonCard({ lesson }) {
           <div><span className="detail-label">Tema da aula</span><strong>{lesson.theme}</strong></div>
           <div><span className="detail-label">Objetivo da aula</span><strong>{lesson.objective}</strong></div>
         </div>
+        {lesson.activities && <div className="lesson-activities"><span className="detail-label">Atividades aplicadas</span><strong>{lesson.activities}</strong></div>}
       </div>
     </article>
   )

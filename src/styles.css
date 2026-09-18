@@ -269,6 +269,38 @@ button {
   box-shadow: 0 0 0 3px rgb(92 159 145 / 10%);
 }
 
+.modal textarea,
+.modal select {
+  min-height: 82px;
+  padding: 10px 11px;
+  border: 1px solid #d9e4df;
+  border-radius: 6px;
+  outline: 0;
+  color: #315b58;
+  background: #fff;
+  font: inherit;
+  font-size: 12px;
+  resize: vertical;
+}
+
+.modal textarea:focus,
+.modal select:focus {
+  border-color: #5c9f91;
+  box-shadow: 0 0 0 3px rgb(92 159 145 / 10%);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-help {
+  margin: -8px 0 17px;
+  color: #6d837e;
+  font-size: 12px;
+}
+
 .login-message {
   margin: 0;
   padding: 9px 11px;
@@ -537,6 +569,12 @@ button {
   font-weight: 500;
 }
 
+.lesson-activities {
+  margin-top: 15px;
+  padding-top: 13px;
+  border-top: 1px solid #edf1ef;
+}
+
 /* ---------- 8. Ajustes para celular ---------- */
 @media (max-width: 760px) {
   .agenda-sidebar {
@@ -596,6 +634,10 @@ button {
     grid-template-columns: 1fr;
     gap: 12px;
     margin-top: 16px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
   }
 }
 
