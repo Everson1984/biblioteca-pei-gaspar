@@ -486,6 +486,81 @@ button {
   font-size: 10px;
 }
 
+/* ---------- 7. Pesquisa e categorias ---------- */
+.agenda-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 17px;
+}
+
+.agenda-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  min-height: 43px;
+  padding: 0 13px;
+  border: 1px solid #dce6e2;
+  border-radius: 7px;
+  color: #82a098;
+  background: #fff;
+}
+
+.agenda-search:focus-within,
+.category-filter select:focus {
+  border-color: #5c9f91;
+  box-shadow: 0 0 0 3px rgb(92 159 145 / 10%);
+}
+
+.agenda-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: #315b58;
+  background: transparent;
+  font-size: 12px;
+}
+
+.category-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #81958f;
+  font-size: 11px;
+}
+
+.category-filter select {
+  min-height: 43px;
+  padding: 0 30px 0 11px;
+  border: 1px solid #dce6e2;
+  border-radius: 7px;
+  outline: 0;
+  color: #315b58;
+  background: #fff;
+  font-size: 12px;
+}
+
+.agenda-empty {
+  margin: 0;
+  padding: 36px 20px;
+  border: 1px dashed #cbdcd6;
+  border-radius: 9px;
+  color: #80938d;
+  background: #fff;
+  text-align: center;
+  font-size: 13px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
 /* ---------- 7. Cartão de uma aula ---------- */
 .agenda-list {
   display: grid;
@@ -630,6 +705,19 @@ button {
 
   .agenda-summary {
     grid-template-columns: 1fr;
+  }
+
+  .agenda-filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .category-filter {
+    justify-content: space-between;
+  }
+
+  .category-filter select {
+    flex: 1;
   }
 
   .lesson-card {

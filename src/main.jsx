@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BookOpen, CalendarDays, ChevronLeft, ChevronRight, Clock3, GraduationCap, LogOut, Plus, Target, UserPlus, X } from 'lucide-react'
+import { BookOpen, CalendarDays, ChevronLeft, ChevronRight, Clock3, GraduationCap, LogOut, Plus, Search, Target, UserPlus, X } from 'lucide-react'
 import './styles.css'
 
 const lessons = [
@@ -48,6 +48,8 @@ function App() {
   const [showTeacherForm, setShowTeacherForm] = useState(false)
   const [savedLessons, setSavedLessons] = useState(() => JSON.parse(localStorage.getItem('pei-lessons') || '[]'))
   const [showLessonForm, setShowLessonForm] = useState(false)
+  const [searchText, setSearchText] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('Todas')
 
   if (!user) {
     return <Login onLogin={account => {
@@ -67,30 +69,31 @@ function App() {
       email: form.get('email')
     }
 
-    const addLesson = (event) => {
-      event.preventDefault()
-      const form = new FormData(event.currentTarget)
-      const newLesson = {
-        id: Date.now(),
-        date: form.get('date'),
-        time: `${form.get('startTime')} – ${form.get('endTime')}`,
-        className: form.get('className'),
-        subject: form.get('subject'),
-        skill: form.get('skill'),
-        theme: form.get('theme'),
-        objective: form.get('objective'),
-        activities: form.get('activities'),
-        color: 'teal'
-      }
-      const nextLessons = [...savedLessons, newLesson]
-      localStorage.setItem('pei-lessons', JSON.stringify(nextLessons))
-      setSavedLessons(nextLessons)
-      setShowLessonForm(false)
-    }
     const nextTeachers = [...teachers, teacher]
     localStorage.setItem('pei-teachers', JSON.stringify(nextTeachers))
     setTeachers(nextTeachers)
     setShowTeacherForm(false)
+  }
+
+  const addLesson = (event) => {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
+    const newLesson = {
+      id: Date.now(),
+      date: form.get('date'),
+      time: `${form.get('startTime')} – ${form.get('endTime')}`,
+      className: form.get('className'),
+      subject: form.get('subject'),
+      skill: form.get('skill'),
+      theme: form.get('theme'),
+      objective: form.get('objective'),
+      activities: form.get('activities'),
+      color: 'teal'
+    }
+    const nextLessons = [...savedLessons, newLesson]
+    localStorage.setItem('pei-lessons', JSON.stringify(nextLessons))
+    setSavedLessons(nextLessons)
+    setShowLessonForm(false)
   }
 
   const logout = () => {
@@ -114,6 +117,14 @@ function App() {
     weekday: 'long',
     day: 'numeric',
     month: 'long'
+  })
+  const allLessons = [...lessons, ...savedLessons]
+  const categories = ['Todas', ...new Set(allLessons.map(lesson => lesson.subject))]
+  const normalizedSearch = searchText.trim().toLowerCase()
+  const filteredLessons = allLessons.filter(lesson => {
+    const matchesCategory = selectedCategory === 'Todas' || lesson.subject === selectedCategory
+    const searchableText = `${lesson.subject} ${lesson.className} ${lesson.skill} ${lesson.theme} ${lesson.objective}`.toLowerCase()
+    return matchesCategory && searchableText.includes(normalizedSearch)
   })
 
   return (
@@ -161,13 +172,19 @@ function App() {
           </div>
 
           <div className="agenda-summary">
-            <div><Clock3 size={19} /><span><strong>{lessons.length + savedLessons.length} aulas</strong><small>no planejamento</small></span></div>
-            <div><BookOpen size={19} /><span><strong>{new Set([...lessons, ...savedLessons].map(lesson => lesson.subject)).size} componentes</strong><small>curriculares</small></span></div>
-            <div><Target size={19} /><span><strong>{new Set([...lessons, ...savedLessons].map(lesson => lesson.skill)).size} habilidades</strong><small>da BNCC trabalhadas</small></span></div>
+            <div><Clock3 size={19} /><span><strong>{filteredLessons.length} aulas</strong><small>encontradas</small></span></div>
+            <div><BookOpen size={19} /><span><strong>{new Set(filteredLessons.map(lesson => lesson.subject)).size} componentes</strong><small>curriculares</small></span></div>
+            <div><Target size={19} /><span><strong>{new Set(filteredLessons.map(lesson => lesson.skill)).size} habilidades</strong><small>da BNCC trabalhadas</small></span></div>
+          </div>
+
+          <div className="agenda-filters">
+            <label className="agenda-search"><Search size={17} /><span className="sr-only">Pesquisar aulas</span><input value={searchText} onChange={event => setSearchText(event.target.value)} placeholder="Pesquisar por tema, turma ou habilidade..." /></label>
+            <label className="category-filter"><span>Categoria</span><select value={selectedCategory} onChange={event => setSelectedCategory(event.target.value)}>{categories.map(category => <option key={category}>{category}</option>)}</select></label>
           </div>
 
           <div className="agenda-list">
-            {[...lessons, ...savedLessons].map(lesson => <LessonCard key={lesson.id || lesson.time} lesson={lesson} />)}
+            {filteredLessons.map(lesson => <LessonCard key={lesson.id || lesson.time} lesson={lesson} />)}
+            {filteredLessons.length === 0 && <p className="agenda-empty">Nenhuma aula encontrada. Tente outro termo ou categoria.</p>}
           </div>
         </section>
       </main>
